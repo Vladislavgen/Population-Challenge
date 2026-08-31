@@ -1,6 +1,7 @@
 # Bitácora de uso de Inteligencia Artificial
 
-Proyecto: **Country Battle** — juego web sobre población de países
+Proyecto: **Population Challenge** — juego web sobre población de países
+Repositorio: https://github.com/Vladislavgen/Population-Challenge
 Materia: Plataformas de Desarrollo — Examen Parcial
 Modalidad: trabajo individual práctico
 
@@ -28,7 +29,7 @@ realmente ocurrieron.
 ### Prompt 1 — Definición del proyecto y método de trabajo por etapas
 
 > "Actúa como tutor técnico. Necesito desarrollar un proyecto Frontend para el examen
-> parcial: un juego llamado Country Battle donde se muestran dos países al azar y el
+> parcial: un juego llamado Population Challenge donde se muestran dos países al azar y el
 > jugador debe adivinar cuál tiene mayor población. Debe usar HTML5, CSS3 y JavaScript
 > Vanilla (sin React, Vue, Angular, jQuery ni Axios), consumir la API REST Countries,
 > incluir filtro por región, búsqueda de países y los estados de carga, error y sin
@@ -117,9 +118,16 @@ pero el `GET` real devuelve **403**:
 ```
 
 Conclusión documentada para el `README.md`: hay que registrar los orígenes permitidos
-(`localhost`, `127.0.0.1` y el dominio de publicación) en el panel de la cuenta, y el
-proyecto debe abrirse con un servidor local, nunca con `file://` (en ese caso el
-navegador envía `Origin: null` y la API responde 403).
+en el panel de la cuenta — `localhost` y `127.0.0.1` para el desarrollo, y
+`vladislavgen.github.io` para la versión publicada en GitHub Pages
+(https://vladislavgen.github.io/Population-Challenge). Además, el proyecto debe
+abrirse con un servidor local y nunca con `file://` (en ese caso el navegador envía
+`Origin: null` y la API responde 403).
+
+Como GitHub Pages publica el sitio en un subdirectorio (`/Population-Challenge/`),
+todas las rutas de los archivos deben ser relativas (`css/styles.css`,
+`js/app.js`) y no absolutas (`/css/styles.css`), porque estas últimas apuntarían a
+la raíz del dominio y devolverían 404 al publicar.
 
 ---
 
