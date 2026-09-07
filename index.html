@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      name="description"
+      content="Population Challenge: juego web donde hay que adivinar cuál de dos países tiene más habitantes.">
+    <title>Population Challenge</title>
+    <!-- Rutas relativas: el sitio se publica en GitHub Pages dentro del
+         subdirectorio /Population-Challenge/, una ruta absoluta daría 404. -->
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <header class="header">
+      <h1 class="header__title">Population Challenge</h1>
+      <p class="header__subtitle">Adiviná qué país tiene más habitantes</p>
+
+      <dl class="scoreboard">
+        <div class="scoreboard__item">
+          <dt class="scoreboard__label">Puntaje</dt>
+          <dd class="scoreboard__value" id="score-value">0</dd>
+        </div>
+        <div class="scoreboard__item">
+          <dt class="scoreboard__label">Racha</dt>
+          <dd class="scoreboard__value" id="streak-value">🔥 0</dd>
+        </div>
+        <div class="scoreboard__item">
+          <dt class="scoreboard__label">Rondas</dt>
+          <dd class="scoreboard__value" id="rounds-value">0</dd>
+        </div>
+      </dl>
+    </header>
+
+    <main class="layout">
+      <!-- Controles: la búsqueda y el filtro de región recién se conectan en
+           las Etapas 7 y 8; acá solo queda definida la estructura. -->
+      <section class="controls" aria-labelledby="controls-title">
+        <h2 class="visually-hidden" id="controls-title">Filtros del juego</h2>
+
+        <div class="control">
+          <label class="control__label" for="search-input">🔎 Buscar país</label>
+          <input
+            class="control__field"
+            type="search"
+            id="search-input"
+            name="search"
+            placeholder="Escribí el nombre de un país..."
+            autocomplete="off">
+        </div>
+
+        <div class="control">
+          <label class="control__label" for="region-select">Región</label>
+          <select class="control__field" id="region-select" name="region">
+            <option value="all" selected>Todas las regiones</option>
+            <option value="Africa">África</option>
+            <option value="Americas">América</option>
+            <option value="Antarctic">Antártida</option>
+            <option value="Asia">Asia</option>
+            <option value="Europe">Europa</option>
+            <option value="Oceania">Oceanía</option>
+          </select>
+        </div>
+
+        <p class="controls__pool" id="pool-counter">2 países disponibles</p>
+      </section>
+
+      <!-- Estados de la aplicación. Los tres nacen ocultos: en la Etapa 3 el
+           módulo de UI decide cuál se muestra según el estado de la carga. -->
+      <div class="status" id="status-loading" aria-live="polite" hidden>
+        <p class="status__message">🌎 Cargando países...</p>
+      </div>
+
+      <div class="status" id="status-error" role="alert" hidden>
+        <p class="status__message">⚠️ No se pudieron cargar los países.</p>
+        <p class="status__hint">Revisá tu conexión y volvé a intentarlo.</p>
+        <button class="button" type="button" id="retry-button">Reintentar</button>
+      </div>
+
+      <div class="status" id="status-empty" hidden>
+        <p class="status__message">No se encontraron países.</p>
+        <p class="status__hint">Probá con otro nombre o cambiá la región.</p>
+      </div>
+
+      <!-- Ronda actual. Los datos son un ejemplo fijo tomado de la API real;
+           en la Etapa 5 los reemplaza un par de países elegido al azar. -->
+      <section class="battle" id="battle" aria-labelledby="battle-title">
+        <h2 class="battle__title" id="battle-title">¿Qué país tiene más habitantes?</h2>
+
+        <div class="battle__grid">
+          <article class="country-card" id="country-card-a">
+            <img
+              class="country-card__flag"
+              id="country-flag-a"
+              src="https://flags.restcountries.com/v5/w640/ar.png"
+              alt="Bandera de Argentina">
+            <h3 class="country-card__name" id="country-name-a">Argentina</h3>
+            <p class="country-card__population" id="country-population-a">???</p>
+            <button class="button button--answer" type="button" id="answer-button-a">
+              Elegir Argentina
+            </button>
+          </article>
+
+          <p class="battle__versus" aria-hidden="true">VS</p>
+
+          <article class="country-card" id="country-card-b">
+            <img
+              class="country-card__flag"
+              id="country-flag-b"
+              src="https://flags.restcountries.com/v5/w640/jp.png"
+              alt="Bandera de Japan">
+            <h3 class="country-card__name" id="country-name-b">Japan</h3>
+            <p class="country-card__population" id="country-population-b">???</p>
+            <button class="button button--answer" type="button" id="answer-button-b">
+              Elegir Japan
+            </button>
+          </article>
+        </div>
+      </section>
+
+      <!-- Resultado de la ronda. aria-live avisa al lector de pantalla cuando
+           el veredicto cambia sin que se recargue la página. -->
+      <section class="result" id="result" aria-live="polite" aria-labelledby="result-title">
+        <h2 class="result__verdict" id="result-title">✅ ¡Correcto!</h2>
+        <p class="result__answer">
+          La respuesta correcta era <strong id="result-country">Japan</strong>.
+        </p>
+
+        <ul class="result__populations">
+          <li id="result-population-a">Argentina: 46.466.688 habitantes</li>
+          <li id="result-population-b">Japan: 122.680.000 habitantes</li>
+        </ul>
+
+        <p class="result__points" id="result-points">+100 puntos</p>
+        <p class="result__streak" id="result-streak">🔥 Racha: 1</p>
+
+        <button class="button" type="button" id="next-button">Siguiente ronda</button>
+      </section>
+
+      <!-- Ficha del país correcto. La API v5 no expone el escudo nacional
+           (assets[] está vacío en los 254 países), por eso la identidad se
+           arma con la bandera, el emoji y el tipo de gobierno. -->
+      <section class="facts" id="facts" aria-labelledby="facts-title">
+        <h2 class="facts__title" id="facts-title">Ficha del país</h2>
+
+        <div class="facts__identity">
+          <img
+            class="facts__flag"
+            id="facts-flag"
+            src="https://flags.restcountries.com/v5/w640/jp.png"
+            alt="Bandera de Japan">
+          <p class="facts__emoji" id="facts-emoji" aria-hidden="true">🇯🇵</p>
+          <h3 class="facts__name" id="facts-name">Japan</h3>
+          <p class="facts__official" id="facts-official">Japan</p>
+          <p class="facts__codes" id="facts-codes">JP · JPN</p>
+        </div>
+
+        <dl class="facts__list">
+          <div class="facts__row">
+            <dt class="facts__term">Población</dt>
+            <dd class="facts__definition" id="facts-population">122.680.000 habitantes</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Capital</dt>
+            <dd class="facts__definition" id="facts-capital">Tokyo</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Región</dt>
+            <dd class="facts__definition" id="facts-region">Asia</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Subregión</dt>
+            <dd class="facts__definition" id="facts-subregion">Eastern Asia</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Continente</dt>
+            <dd class="facts__definition" id="facts-continent">Asia</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Área</dt>
+            <dd class="facts__definition" id="facts-area">377.930 km²</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Moneda</dt>
+            <dd class="facts__definition" id="facts-currency">Japanese yen (JPY, ¥)</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Idiomas</dt>
+            <dd class="facts__definition" id="facts-languages">Japanese</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Husos horarios</dt>
+            <dd class="facts__definition" id="facts-timezones">UTC+09:00</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Países vecinos</dt>
+            <dd class="facts__definition" id="facts-borders">No disponible</dd>
+          </div>
+          <div class="facts__row">
+            <dt class="facts__term">Tipo de gobierno</dt>
+            <dd class="facts__definition" id="facts-government">
+              Unitary parliamentary constitutional monarchy
+            </dd>
+          </div>
+        </dl>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p class="footer__text">
+        Datos obtenidos de
+        <a
+          class="footer__link"
+          href="https://restcountries.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >REST Countries API v5</a
+        >
+      </p>
+      <p class="footer__text">
+        Proyecto académico — Plataformas de Desarrollo, Examen Parcial
+      </p>
+    </footer>
+  </body>
+</html>

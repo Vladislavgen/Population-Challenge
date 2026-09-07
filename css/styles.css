@@ -1,0 +1,116 @@
+/* ==========================================================================
+   Population Challenge — base
+   Etapa 1: solo variables, reset y tipografía. La maquetación completa
+   (Grid, Flexbox y media queries) llega en la Etapa 2.
+   ========================================================================== */
+
+:root {
+  /* Colores */
+  --color-fondo: #0f172a;
+  --color-superficie: #1e293b;
+  --color-borde: #334155;
+  --color-texto: #e2e8f0;
+  --color-texto-suave: #94a3b8;
+  --color-acento: #38bdf8;
+  --color-acento-oscuro: #0284c7;
+  --color-exito: #4ade80;
+  --color-error: #f87171;
+
+  /* Espaciado */
+  --espacio-xs: 0.25rem;
+  --espacio-sm: 0.5rem;
+  --espacio-md: 1rem;
+  --espacio-lg: 1.5rem;
+  --espacio-xl: 2.5rem;
+
+  /* Formas y tipografía */
+  --radio: 0.75rem;
+  --ancho-maximo: 60rem;
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Reset mínimo ------------------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+p,
+dl,
+dd,
+ul,
+figure {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Tipografía y colores base ----------------------------------------------- */
+
+body {
+  min-height: 100vh;
+  padding: var(--espacio-md);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--fuente);
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+a {
+  color: var(--color-acento);
+}
+
+/* El foco visible se mantiene en todo el proyecto por accesibilidad:
+   la partida se puede jugar solo con el teclado. */
+:focus-visible {
+  outline: 2px solid var(--color-acento);
+  outline-offset: 2px;
+}
+
+/* Utilidades -------------------------------------------------------------- */
+
+/* Oculta un elemento a la vista pero lo deja disponible para los lectores
+   de pantalla (se usa en los títulos de sección que no van a la pantalla). */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* El atributo hidden pierde efecto en cuanto un elemento recibe display
+   desde una clase, así que se refuerza acá. */
+[hidden] {
+  display: none !important;
+}
