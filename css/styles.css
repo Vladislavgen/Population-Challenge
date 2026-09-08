@@ -1,13 +1,14 @@
 /* ==========================================================================
-   Population Challenge — base
-   Etapa 1: solo variables, reset y tipografía. La maquetación completa
-   (Grid, Flexbox y media queries) llega en la Etapa 2.
+   Population Challenge — hoja de estilos
+   Enfoque mobile first: los estilos base valen para el teléfono y las media
+   queries van agregando columnas en tablet (40rem) y escritorio (60rem).
    ========================================================================== */
 
 :root {
   /* Colores */
   --color-fondo: #0f172a;
   --color-superficie: #1e293b;
+  --color-superficie-alta: #273449;
   --color-borde: #334155;
   --color-texto: #e2e8f0;
   --color-texto-suave: #94a3b8;
@@ -26,7 +27,12 @@
   /* Formas y tipografía */
   --radio: 0.75rem;
   --ancho-maximo: 60rem;
+  --sombra: 0 10px 25px rgb(2 6 23 / 45%);
   --fuente: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Avisa al navegador que la interfaz es oscura para que los controles
+     nativos (input y select) se dibujen acordes. */
+  color-scheme: dark;
 }
 
 /* Reset mínimo ------------------------------------------------------------ */
@@ -113,4 +119,446 @@ a {
    desde una clase, así que se refuerza acá. */
 [hidden] {
   display: none !important;
+}
+
+/* Encabezado y marcador --------------------------------------------------- */
+
+.header {
+  max-width: var(--ancho-maximo);
+  margin: 0 auto var(--espacio-lg);
+  text-align: center;
+}
+
+.header__title {
+  font-size: clamp(1.75rem, 6vw, 2.75rem);
+  letter-spacing: 0.02em;
+}
+
+.header__subtitle {
+  color: var(--color-texto-suave);
+}
+
+.scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--espacio-sm);
+  margin-top: var(--espacio-md);
+}
+
+.scoreboard__item {
+  flex: 1 1 6rem;
+  padding: var(--espacio-sm) var(--espacio-md);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background-color: var(--color-superficie);
+}
+
+.scoreboard__label {
+  color: var(--color-texto-suave);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.scoreboard__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Estructura general ------------------------------------------------------ */
+
+.layout {
+  display: grid;
+  gap: var(--espacio-lg);
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+}
+
+/* Bloque reutilizable: todas las secciones comparten el mismo panel. */
+.controls,
+.status,
+.battle,
+.result,
+.facts {
+  padding: var(--espacio-lg);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background-color: var(--color-superficie);
+  box-shadow: var(--sombra);
+}
+
+/* Controles: búsqueda y filtro -------------------------------------------- */
+
+.controls {
+  display: grid;
+  gap: var(--espacio-md);
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-xs);
+}
+
+.control__label {
+  color: var(--color-texto-suave);
+  font-size: 0.875rem;
+}
+
+.control__field {
+  padding: var(--espacio-sm) var(--espacio-md);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background-color: var(--color-fondo);
+}
+
+.control__field:hover {
+  border-color: var(--color-acento-oscuro);
+}
+
+.controls__pool {
+  color: var(--color-texto-suave);
+  font-size: 0.875rem;
+}
+
+/* Estados: cargando, error y sin resultados ------------------------------- */
+
+.status {
+  display: grid;
+  justify-items: center;
+  gap: var(--espacio-sm);
+  text-align: center;
+}
+
+.status__message {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.status__hint {
+  color: var(--color-texto-suave);
+  font-size: 0.875rem;
+}
+
+#status-error .status__message {
+  color: var(--color-error);
+}
+
+/* La animación marca que la carga sigue en curso; se apaga si el sistema
+   pide menos movimiento. */
+#status-loading .status__message {
+  animation: latido 1.4s ease-in-out infinite;
+}
+
+@keyframes latido {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #status-loading .status__message {
+    animation: none;
+  }
+}
+
+/* Botones ----------------------------------------------------------------- */
+
+.button {
+  padding: var(--espacio-sm) var(--espacio-lg);
+  border: 1px solid var(--color-acento-oscuro);
+  border-radius: var(--radio);
+  background-color: var(--color-acento-oscuro);
+  color: #f8fafc;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.button:hover:not(:disabled) {
+  background-color: var(--color-acento);
+  color: var(--color-fondo);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Después de responder, la Etapa 5 deshabilita las dos opciones. */
+.button:disabled {
+  border-color: var(--color-borde);
+  background-color: var(--color-borde);
+  color: var(--color-texto-suave);
+  cursor: not-allowed;
+}
+
+.button--answer {
+  width: 100%;
+  margin-top: auto;
+}
+
+/* Duelo de países --------------------------------------------------------- */
+
+.battle__title {
+  margin-bottom: var(--espacio-lg);
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.battle__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--espacio-md);
+}
+
+.battle__versus {
+  align-self: center;
+  color: var(--color-texto-suave);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.country-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  padding: var(--espacio-md);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background-color: var(--color-superficie-alta);
+  text-align: center;
+}
+
+/* Las banderas tienen proporciones muy distintas (Nepal ni siquiera es un
+   rectángulo), así que se encajan enteras dentro de un marco fijo en lugar
+   de recortarlas. El marco fijo evita que la tarjeta salte al cambiar de
+   país. */
+.country-card__flag {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  border-radius: calc(var(--radio) / 2);
+  background-color: var(--color-fondo);
+  object-fit: contain;
+}
+
+.country-card__name {
+  font-size: 1.125rem;
+}
+
+.country-card__population {
+  color: var(--color-texto-suave);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* Modificadores que la Etapa 5 aplica al revelar la respuesta. */
+.country-card--ganadora {
+  border-color: var(--color-exito);
+}
+
+.country-card--ganadora .country-card__population {
+  color: var(--color-exito);
+}
+
+.country-card--perdedora {
+  opacity: 0.65;
+}
+
+/* Resultado de la ronda --------------------------------------------------- */
+
+.result {
+  display: grid;
+  justify-items: center;
+  gap: var(--espacio-sm);
+  text-align: center;
+}
+
+.result__verdict {
+  font-size: 1.5rem;
+}
+
+/* Modificadores que la Etapa 5 aplica según el acierto. */
+.result--correcta .result__verdict {
+  color: var(--color-exito);
+}
+
+.result--incorrecta .result__verdict {
+  color: var(--color-error);
+}
+
+.result__answer {
+  color: var(--color-texto-suave);
+}
+
+.result__populations {
+  display: grid;
+  gap: var(--espacio-xs);
+  width: 100%;
+}
+
+.result__populations li {
+  padding: var(--espacio-xs) var(--espacio-sm);
+  border-radius: calc(var(--radio) / 2);
+  background-color: var(--color-superficie-alta);
+}
+
+.result__points {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.result__streak {
+  color: var(--color-texto-suave);
+}
+
+.result .button {
+  margin-top: var(--espacio-sm);
+}
+
+/* Ficha del país ---------------------------------------------------------- */
+
+.facts__title {
+  margin-bottom: var(--espacio-lg);
+  font-size: 1.25rem;
+}
+
+.facts__identity {
+  display: grid;
+  justify-items: center;
+  gap: var(--espacio-xs);
+  padding-bottom: var(--espacio-md);
+  border-bottom: 1px solid var(--color-borde);
+  text-align: center;
+}
+
+.facts__flag {
+  width: 100%;
+  max-width: 15rem;
+  aspect-ratio: 3 / 2;
+  border-radius: calc(var(--radio) / 2);
+  background-color: var(--color-fondo);
+  object-fit: contain;
+}
+
+.facts__emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.facts__official,
+.facts__codes {
+  color: var(--color-texto-suave);
+  font-size: 0.875rem;
+}
+
+.facts__list {
+  display: grid;
+  gap: var(--espacio-sm);
+  margin-top: var(--espacio-md);
+}
+
+.facts__row {
+  display: grid;
+  gap: var(--espacio-xs);
+  padding-bottom: var(--espacio-sm);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.facts__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.facts__term {
+  color: var(--color-texto-suave);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Los nombres largos sin espacios (por ejemplo una lista de vecinos) no
+   deben desbordar la tarjeta en pantallas angostas. */
+.facts__definition {
+  overflow-wrap: anywhere;
+}
+
+/* Pie de página ----------------------------------------------------------- */
+
+.footer {
+  max-width: var(--ancho-maximo);
+  margin: var(--espacio-xl) auto 0;
+  color: var(--color-texto-suave);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* Tablet: 40rem ----------------------------------------------------------- */
+
+@media (min-width: 40rem) {
+  body {
+    padding: var(--espacio-lg);
+  }
+
+  /* Los dos países pasan a estar enfrentados con el VS en el medio. */
+  .battle__grid {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: stretch;
+  }
+
+  .battle__versus {
+    padding: 0 var(--espacio-sm);
+    font-size: 1.5rem;
+  }
+
+  /* Búsqueda y región comparten fila; el contador ocupa el ancho completo. */
+  .controls {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .controls__pool {
+    grid-column: 1 / -1;
+  }
+
+  .result__populations {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* La ficha usa dos columnas: etiqueta a la izquierda, valor a la derecha. */
+  .facts__row {
+    grid-template-columns: 10rem 1fr;
+    gap: var(--espacio-md);
+    align-items: baseline;
+  }
+}
+
+/* Escritorio: 60rem ------------------------------------------------------- */
+
+@media (min-width: 60rem) {
+  body {
+    padding: var(--espacio-xl) var(--espacio-lg);
+  }
+
+  /* Resultado y ficha quedan uno al lado del otro; el resto ocupa el ancho
+     completo de la grilla. */
+  .layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .controls,
+  .status,
+  .battle {
+    grid-column: 1 / -1;
+  }
+
+  .country-card {
+    padding: var(--espacio-lg);
+  }
+
+  .country-card__population {
+    font-size: 2rem;
+  }
 }
