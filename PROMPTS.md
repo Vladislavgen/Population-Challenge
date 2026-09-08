@@ -153,7 +153,57 @@ países jugables exige `poblacion > 0`. Los demás casos se resuelven mostrando
 
 ---
 
-## 3. Sugerencias aceptadas
+## 3. Bitácora por etapa
+
+A partir de la Etapa 1 cada tramo se pidió con una instrucción corta ("hacé la
+Etapa N") apoyada en el plan acordado en la Etapa 0. Lo que sigue no son los
+prompts literales, sino las decisiones y los hallazgos que produjo cada etapa.
+
+### Etapa 1 — Maquetado semántico
+
+- Los datos de ejemplo de la maqueta (Argentina 46.466.688 y Japan 122.680.000)
+  se pidieron a la API real en vez de inventarlos, para que la estructura del
+  HTML coincidiera desde el principio con la forma de los datos definitivos.
+- Se eligió a propósito un país sin vecinos (Japan, con `borders` vacío) para
+  que el texto `No disponible` quedara a la vista ya en la maqueta.
+- El marcado se pasó por el validador del W3C, que corrigió dos cosas: un
+  `<script type="module">` no puede llevar `defer` (los módulos ya se difieren
+  solos), y los bloques de estado no debían ser `<section>` porque no tienen
+  encabezado propio, así que pasaron a ser `<div>`.
+
+### Etapa 2 — Diseño responsive
+
+- El resultado se verificó con capturas a 390, 820 y 1280 píxeles. La primera
+  parecía mostrar la página cortada por la derecha, pero un script que compara
+  `scrollWidth` con el ancho de la ventana demostró que no había desbordamiento:
+  el navegador sin interfaz gráfica fuerza un viewport mínimo de 500 píxeles y
+  recortaba la imagen. La comprobación evitó "arreglar" un problema inexistente.
+- Las banderas se muestran con `object-fit: contain` dentro de un marco fijo de
+  3:2 en lugar de `cover`. Las proporciones reales varían mucho (la de Nepal ni
+  siquiera es rectangular) y recortarlas escondería parte del diseño.
+
+### Etapa 3 — Conexión con la API
+
+- La paginación no se escribió a mano con tres peticiones fijas: el bucle corta
+  cuando `data.meta.more` es falso. Si el catálogo cambia de tamaño, el código
+  sigue funcionando sin tocarlo.
+- Se pidió `response_fields` con la lista exacta de campos que usa el juego, en
+  lugar del `response_fields_omit` previsto en la Etapa 0: es más corto de
+  mantener y deja explícito qué datos consume la aplicación.
+- **Hallazgo nuevo:** cuatro territorios de reconocimiento parcial (Abkhazia,
+  Northern Cyprus, Somaliland y South Ossetia) tienen `codes.alpha_3` vacío, por
+  lo que ese código no sirve como identificador único. Los nombres comunes, en
+  cambio, no se repiten en ninguno de los 254 países.
+- La descarga se probó con Node sobre una copia temporal de los módulos fuera
+  del repositorio, para no dejar la clave real en el historial de Git. Resultado:
+  254 países en tres peticiones, unos 4,5 segundos.
+- Como la clave todavía no tiene orígenes autorizados, el navegador recibe 403.
+  El estado de error quedó verificado con ese fallo real, y la ruta exitosa se
+  comprobó aparte con un proxy local de prueba que no forma parte del proyecto.
+
+---
+
+## 4. Sugerencias aceptadas
 
 | Sugerencia                                                             | Motivo por el que se aceptó                                                                                         |
 | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -164,8 +214,11 @@ países jugables exige `poblacion > 0`. Los demás casos se resuelven mostrando
 | Crear una función `normalizarPais()` intermedia                         | Aísla la estructura anidada de la API del resto del código: si la API cambia otra vez, solo se toca una función.    |
 | Verificar los campos ausentes recorriendo los datos reales             | Permite escribir los `fallback` sobre casos comprobados y no sobre suposiciones.                                     |
 | Desarrollo por etapas con un commit por funcionalidad                   | El historial de Git muestra el proceso real de construcción y permite explicar cada parte al docente.               |
+| Cortar la paginación con `data.meta.more` en vez de fijar tres peticiones | Es la propia API la que avisa si quedan resultados; el código no depende de que el catálogo siga teniendo 254 países. |
+| Pasar el HTML y el CSS por los validadores del W3C en cada etapa        | Detectó errores reales que a simple vista no se ven, como el `defer` inválido en un `<script type="module">`.        |
+| Mostrar las banderas con `object-fit: contain` sobre un marco fijo      | Ninguna bandera queda recortada y la tarjeta no cambia de alto al pasar de un país a otro.                            |
 
-## 4. Sugerencias descartadas
+## 5. Sugerencias descartadas
 
 | Sugerencia descartada                                                                                  | Motivo del rechazo                                                                                                                                                         |
 | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -176,10 +229,12 @@ países jugables exige `poblacion > 0`. Los demás casos se resuelven mostrando
 | Abrir `index.html` directamente con doble clic (`file://`)                                              | El navegador envía `Origin: null` y la API responde 403. Se documenta el uso de un servidor local en las instrucciones de ejecución.                                          |
 | Usar un framework o una librería de peticiones para simplificar el código                              | Prohibido explícitamente por la consigna: el proyecto es HTML5, CSS3 y JavaScript puro.                                                                                     |
 | Agregar una capa de estado tipo `store` con suscripciones y eventos personalizados                      | Sobreingeniería para un trabajo académico: un único objeto `state` y funciones de render son suficientes y más fáciles de explicar.                                          |
+| Corregir el supuesto desbordamiento horizontal que mostraba la primera captura de la Etapa 2           | La medición demostró que la página no desbordaba: el recorte lo producía la herramienta de captura. Tocar el CSS habría roto un diseño que funcionaba.                        |
+| Usar `codes.alpha_3` como identificador único de cada país                                             | Está vacío en Abkhazia, Northern Cyprus, Somaliland y South Ossetia. El nombre común sí es único en el catálogo completo.                                                    |
 
 ---
 
-## 5. Reflexión
+## 6. Reflexión
 
 El aporte más valioso de la IA en esta etapa no fue escribir código, sino **verificar
 supuestos**. La consigna y la planificación inicial partían de una versión de la API
@@ -193,4 +248,11 @@ En cambio, varias sugerencias fueron rechazadas por comodidad técnica: reemplaz
 API por un archivo JSON alojado en un CDN habría hecho el proyecto más simple, pero
 habría incumplido el requisito central del examen (consumo de una API REST remota).
 
-*Última actualización: Etapa 0 — planificación y verificación de la API.*
+Las etapas siguientes confirmaron el mismo patrón en las dos direcciones. Medir en
+lugar de suponer descubrió el `alpha_3` vacío de cuatro territorios, un detalle que
+habría roto la elección de países más adelante. Pero también funcionó al revés: en la
+Etapa 2 una captura de pantalla sugería un desbordamiento que no existía, y medirlo
+evitó modificar un CSS que ya era correcto. La conclusión práctica es que ni las
+suposiciones ni las herramientas de verificación se pueden dar por buenas solas.
+
+*Última actualización: Etapa 3 — conexión con la API REST Countries v5.*
