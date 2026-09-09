@@ -17,6 +17,7 @@ import {
   mostrarEstado,
   mostrarFase,
   renderizarDuelo,
+  renderizarFicha,
   renderizarResultado,
 } from "./ui.js";
 
@@ -71,6 +72,7 @@ function responder(lado) {
     paisB,
     racha: state.marcador.racha,
   });
+  renderizarFicha(veredicto.ganador);
   mostrarFase("resultado");
 }
 

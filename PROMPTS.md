@@ -233,6 +233,18 @@ prompts literales, sino las decisiones y los hallazgos que produjo cada etapa.
 - La ficha detallada del ganador se deja oculta a propósito: pertenece a la
   Etapa 6. Mostrarla acá mezclaría dos commits.
 
+### Etapa 6 — Ficha del país ganador
+
+- La ficha reutiliza `renderizarFicha()` de la Etapa 4: no se volvió a escribir
+  el formateo de monedas, idiomas ni vecinos. El trabajo de esta etapa es
+  *cuándo* se muestra, no *cómo* se arma.
+- Se pinta siempre el país de mayor población, no el que eligió el jugador.
+  Así, aunque la respuesta sea incorrecta, la ficha sigue siendo la del
+  ganador del duelo.
+- El emoji de la bandera también se oculta si la API no lo trae. Sin eso, los
+  cuatro territorios sin bandera dejarían un renglón vacío entre la imagen y
+  el nombre.
+
 ---
 
 ## 4. Sugerencias aceptadas
@@ -289,4 +301,4 @@ Etapa 2 una captura de pantalla sugería un desbordamiento que no existía, y me
 evitó modificar un CSS que ya era correcto. La conclusión práctica es que ni las
 suposiciones ni las herramientas de verificación se pueden dar por buenas solas.
 
-*Última actualización: Etapa 5 — duelo de población.*
+*Última actualización: Etapa 6 — ficha del país ganador.*

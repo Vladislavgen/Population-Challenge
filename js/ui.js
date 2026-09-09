@@ -109,13 +109,13 @@ export function mostrarEstado(estado, detalle = "") {
 }
 
 // "pregunta" | "resultado" | "insuficiente"
-// La ficha del país ganador se conecta en la Etapa 6; acá se mantiene oculta
-// para que el jugador no vea datos de un país que todavía no respondió.
+// La ficha solo aparece después de responder: si se mostrara antes, el
+// jugador vería la población del ganador y la ronda perdería sentido.
 export function mostrarFase(fase) {
   alternar(elementos.insuficiente, fase === "insuficiente");
   alternar(elementos.duelo, fase !== "insuficiente");
   alternar(elementos.resultado, fase === "resultado");
-  alternar(elementos.ficha, false);
+  alternar(elementos.ficha, fase === "resultado");
 }
 
 export function actualizarContadorPool(cantidad) {
@@ -202,7 +202,10 @@ function formatearMonedas(monedas) {
 
 export function renderizarFicha(pais) {
   pintarBandera(campos.bandera, pais);
-  campos.emoji.textContent = pais.bandera.emoji ?? "";
+
+  const hayEmoji = Boolean(pais.bandera.emoji);
+  campos.emoji.textContent = hayEmoji ? pais.bandera.emoji : "";
+  alternar(campos.emoji, hayEmoji);
 
   campos.nombre.textContent = pais.nombre;
   escribir(campos.oficial, pais.nombreOficial);
