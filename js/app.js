@@ -1,30 +1,94 @@
-// Punto de entrada de la aplicación: coordina la descarga de datos y los
-// estados de la interfaz.
+// Punto de entrada: carga el catálogo y coordina cada ronda del duelo.
 
 import { descargarPaises } from "./api.js";
-import { actualizarContadorPool, alReintentar, mostrarEstado } from "./ui.js";
+import { normalizarPaises } from "./countries.js";
+import {
+  aplicarPuntaje,
+  elegirPar,
+  paisesJugables,
+  resolverRespuesta,
+} from "./game.js";
+import {
+  actualizarContadorPool,
+  actualizarMarcador,
+  alElegir,
+  alReintentar,
+  alSiguiente,
+  mostrarEstado,
+  mostrarFase,
+  renderizarDuelo,
+  renderizarResultado,
+} from "./ui.js";
 
-// Única fuente de verdad. Las etapas siguientes le van a agregar el país
-// filtrado, la ronda actual y el puntaje, pero siempre sobre este mismo objeto.
+function marcadorVacio() {
+  return { puntaje: 0, racha: 0, rondas: 0 };
+}
+
+// Única fuente de verdad. Las Etapas 7 y 8 van a agregar el conjunto
+// filtrado, pero el duelo siempre lee de acá.
 export const state = {
-  paises: [], // catálogo completo tal como llega de la API
-  estado: "cargando", // "cargando" | "error" | "listo"
+  paises: [],
+  estado: "cargando",
   error: null,
+  fase: "pregunta", // "pregunta" | "resultado" | "insuficiente"
+  ronda: null, // { paisA, paisB } o null
+  marcador: marcadorVacio(),
 };
 
-// async/await deja la secuencia "pedir datos, guardarlos, dibujar" en orden de
-// lectura, y el try/catch atrapa tanto los fallos de red como los de la API.
+function iniciarRonda() {
+  const par = elegirPar(state.paises);
+
+  if (!par) {
+    state.ronda = null;
+    state.fase = "insuficiente";
+    mostrarFase("insuficiente");
+    return;
+  }
+
+  state.ronda = par;
+  state.fase = "pregunta";
+  renderizarDuelo(par.paisA, par.paisB);
+  mostrarFase("pregunta");
+}
+
+function responder(lado) {
+  if (state.fase !== "pregunta" || !state.ronda) {
+    return;
+  }
+
+  const { paisA, paisB } = state.ronda;
+  const elegido = lado === "a" ? paisA : paisB;
+  const veredicto = resolverRespuesta(paisA, paisB, elegido);
+
+  state.marcador = aplicarPuntaje(state.marcador, veredicto.acierto);
+  state.fase = "resultado";
+
+  actualizarMarcador(state.marcador);
+  renderizarDuelo(paisA, paisB, veredicto.ganador);
+  renderizarResultado({
+    ...veredicto,
+    paisA,
+    paisB,
+    racha: state.marcador.racha,
+  });
+  mostrarFase("resultado");
+}
+
 async function cargarCatalogo() {
   state.estado = "cargando";
+  state.ronda = null;
+  state.marcador = marcadorVacio();
+  actualizarMarcador(state.marcador);
   mostrarEstado("cargando");
 
   try {
-    state.paises = await descargarPaises();
+    state.paises = normalizarPaises(await descargarPaises());
     state.error = null;
     state.estado = "listo";
 
-    actualizarContadorPool(state.paises.length);
+    actualizarContadorPool(paisesJugables(state.paises).length);
     mostrarEstado("listo");
+    iniciarRonda();
   } catch (error) {
     state.paises = [];
     state.error = error.message;
@@ -35,4 +99,6 @@ async function cargarCatalogo() {
 }
 
 alReintentar(cargarCatalogo);
+alElegir(responder);
+alSiguiente(iniciarRonda);
 cargarCatalogo();

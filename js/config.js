@@ -7,7 +7,7 @@
 export const API_URL = "https://api.restcountries.com/countries/v5";
 
 // Reemplazar por la clave gratuita obtenida en https://restcountries.com/api-keys
-export const API_KEY = "TU_API_KEY_AQUI";
+export const API_KEY = "rc_live_2949f91dd2c74e6b9ff5e0ead6837aff";
 
 // La clave está restringida por origen: hay que registrar en el panel de la
 // cuenta los hosts desde los que se abre el juego, si no la API devuelve 403.
