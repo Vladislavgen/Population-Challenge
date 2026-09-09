@@ -84,9 +84,13 @@
         <p class="status__hint">Probá con otro nombre o cambiá la región.</p>
       </div>
 
-      <!-- Ronda actual. Los datos son un ejemplo fijo tomado de la API real;
-           en la Etapa 5 los reemplaza un par de países elegido al azar. -->
-      <section class="battle" id="battle" aria-labelledby="battle-title">
+      <div class="status" id="status-short" hidden>
+        <p class="status__message">No hay suficientes países para un duelo.</p>
+        <p class="status__hint">Hacen falta al menos dos países con población mayor a 0.</p>
+      </div>
+
+      <!-- Ronda actual. Los países los elige js/game.js al azar del catálogo. -->
+      <section class="battle" id="battle" aria-labelledby="battle-title" hidden>
         <h2 class="battle__title" id="battle-title">¿Qué país tiene más habitantes?</h2>
 
         <div class="battle__grid">
@@ -122,7 +126,7 @@
 
       <!-- Resultado de la ronda. aria-live avisa al lector de pantalla cuando
            el veredicto cambia sin que se recargue la página. -->
-      <section class="result" id="result" aria-live="polite" aria-labelledby="result-title">
+      <section class="result" id="result" aria-live="polite" aria-labelledby="result-title" hidden>
         <h2 class="result__verdict" id="result-title">✅ ¡Correcto!</h2>
         <p class="result__answer">
           La respuesta correcta era <strong id="result-country">Japan</strong>.
@@ -142,7 +146,7 @@
       <!-- Ficha del país correcto. La API v5 no expone el escudo nacional
            (assets[] está vacío en los 254 países), por eso la identidad se
            arma con la bandera, el emoji y el tipo de gobierno. -->
-      <section class="facts" id="facts" aria-labelledby="facts-title">
+      <section class="facts" id="facts" aria-labelledby="facts-title" hidden>
         <h2 class="facts__title" id="facts-title">Ficha del país</h2>
 
         <div class="facts__identity">
