@@ -201,6 +201,38 @@ prompts literales, sino las decisiones y los hallazgos que produjo cada etapa.
   El estado de error quedó verificado con ese fallo real, y la ruta exitosa se
   comprobó aparte con un proxy local de prueba que no forma parte del proyecto.
 
+### Etapa 4 — Normalización y ficha dinámica
+
+- La normalización se probó sobre los 254 países, no sobre dos o tres de
+  muestra. El recuento de huecos reales quedó así: 5 sin capital, 5 sin
+  subregión, 3 sin monedas, 1 sin idiomas (Antarctica), 16 sin tipo de gobierno
+  y 86 sin países vecinos.
+- **Hallazgo nuevo:** los mismos cuatro territorios que no tienen `alpha_3`
+  tampoco tienen ninguna imagen de bandera, ni siquiera el emoji. La ficha
+  oculta el `<img>` en lugar de dejarle un `src` vacío, porque un `src=""` hace
+  que el navegador vuelva a pedir la propia página.
+- **Falsa alarma verificada:** al traducir los códigos de frontera apareció un
+  vecino llamado `DRC`, que parecía un código sin resolver. Resultó ser el
+  nombre real del país en el catálogo (Democratic Republic of the Congo,
+  `alpha_3` = `COD`). Comprobado el catálogo completo, ningún código de
+  frontera queda huérfano.
+- Los nombres de los vecinos se resuelven en una segunda pasada, con un `Map` de
+  `alpha_3` a nombre, porque para traducirlos hace falta el catálogo entero ya
+  normalizado.
+
+### Etapa 5 — Duelo de población
+
+- El pozo jugable exige `poblacion > 0`. Sin ese recorte, Bouvet Island contra
+  Heard Island dejaría una ronda sin ganador.
+- El par se elige por `nombre`, no por `alpha_3`: ese código está vacío en
+  cuatro territorios y no sirve para distinguir dos países.
+- Si el pozo tiene menos de dos países, el juego no intenta armar la ronda: se
+  muestra `No hay suficientes países para un duelo`. El caso se cubre ahora
+  para que las Etapas 7 y 8 (filtro y búsqueda) no tengan que inventar esa
+  protección después.
+- La ficha detallada del ganador se deja oculta a propósito: pertenece a la
+  Etapa 6. Mostrarla acá mezclaría dos commits.
+
 ---
 
 ## 4. Sugerencias aceptadas
@@ -217,6 +249,7 @@ prompts literales, sino las decisiones y los hallazgos que produjo cada etapa.
 | Cortar la paginación con `data.meta.more` en vez de fijar tres peticiones | Es la propia API la que avisa si quedan resultados; el código no depende de que el catálogo siga teniendo 254 países. |
 | Pasar el HTML y el CSS por los validadores del W3C en cada etapa        | Detectó errores reales que a simple vista no se ven, como el `defer` inválido en un `<script type="module">`.        |
 | Mostrar las banderas con `object-fit: contain` sobre un marco fijo      | Ninguna bandera queda recortada y la tarjeta no cambia de alto al pasar de un país a otro.                            |
+| Guardar los datos ausentes como `null` en el modelo y decidir el texto en la interfaz | El modelo dice la verdad sobre lo que la API entregó, y `No disponible` se escribe en un solo lugar en vez de repetirlo campo por campo. |
 
 ## 5. Sugerencias descartadas
 
@@ -231,6 +264,7 @@ prompts literales, sino las decisiones y los hallazgos que produjo cada etapa.
 | Agregar una capa de estado tipo `store` con suscripciones y eventos personalizados                      | Sobreingeniería para un trabajo académico: un único objeto `state` y funciones de render son suficientes y más fáciles de explicar.                                          |
 | Corregir el supuesto desbordamiento horizontal que mostraba la primera captura de la Etapa 2           | La medición demostró que la página no desbordaba: el recorte lo producía la herramienta de captura. Tocar el CSS habría roto un diseño que funcionaba.                        |
 | Usar `codes.alpha_3` como identificador único de cada país                                             | Está vacío en Abkhazia, Northern Cyprus, Somaliland y South Ossetia. El nombre común sí es único en el catálogo completo.                                                    |
+| Agregar una traducción especial para el vecino `DRC`, que parecía un código sin resolver               | No hacía falta: `DRC` es el nombre con el que el catálogo llama a la República Democrática del Congo. La comprobación evitó agregar una excepción inútil al código.           |
 
 ---
 
@@ -255,4 +289,4 @@ Etapa 2 una captura de pantalla sugería un desbordamiento que no existía, y me
 evitó modificar un CSS que ya era correcto. La conclusión práctica es que ni las
 suposiciones ni las herramientas de verificación se pueden dar por buenas solas.
 
-*Última actualización: Etapa 3 — conexión con la API REST Countries v5.*
+*Última actualización: Etapa 5 — duelo de población.*
