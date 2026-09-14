@@ -1,16 +1,13 @@
 // Punto de entrada: carga el catálogo y coordina cada ronda del duelo.
 
 import { descargarPaises } from "./api.js";
-import { normalizarPaises } from "./countries.js";
-import {
-  aplicarPuntaje,
-  elegirPar,
-  paisesJugables,
-  resolverRespuesta,
-} from "./game.js";
+import { filtrarPaises, normalizarPaises } from "./countries.js";
+import { aplicarPuntaje, elegirPar, resolverRespuesta } from "./game.js";
 import {
   actualizarContadorPool,
   actualizarMarcador,
+  alBuscar,
+  alCambiarRegion,
   alElegir,
   alReintentar,
   alSiguiente,
@@ -25,19 +22,35 @@ function marcadorVacio() {
   return { puntaje: 0, racha: 0, rondas: 0 };
 }
 
-// Única fuente de verdad. Las Etapas 7 y 8 van a agregar el conjunto
-// filtrado, pero el duelo siempre lee de acá.
 export const state = {
   paises: [],
+  paisesFiltrados: [],
+  busqueda: "",
+  region: "all",
   estado: "cargando",
   error: null,
   fase: "pregunta", // "pregunta" | "resultado" | "insuficiente"
-  ronda: null, // { paisA, paisB } o null
+  ronda: null,
   marcador: marcadorVacio(),
 };
 
+function aplicarFiltros() {
+  state.paisesFiltrados = filtrarPaises(state.paises, state.region, state.busqueda);
+  actualizarContadorPool(state.paisesFiltrados.length);
+
+  if (state.paisesFiltrados.length === 0) {
+    state.ronda = null;
+    state.fase = "pregunta";
+    mostrarEstado("sin-resultados");
+    return;
+  }
+
+  mostrarEstado("listo");
+  iniciarRonda();
+}
+
 function iniciarRonda() {
-  const par = elegirPar(state.paises);
+  const par = elegirPar(state.paisesFiltrados);
 
   if (!par) {
     state.ronda = null;
@@ -87,12 +100,10 @@ async function cargarCatalogo() {
     state.paises = normalizarPaises(await descargarPaises());
     state.error = null;
     state.estado = "listo";
-
-    actualizarContadorPool(paisesJugables(state.paises).length);
-    mostrarEstado("listo");
-    iniciarRonda();
+    aplicarFiltros();
   } catch (error) {
     state.paises = [];
+    state.paisesFiltrados = [];
     state.error = error.message;
     state.estado = "error";
 
@@ -103,4 +114,12 @@ async function cargarCatalogo() {
 alReintentar(cargarCatalogo);
 alElegir(responder);
 alSiguiente(iniciarRonda);
+alBuscar((texto) => {
+  state.busqueda = texto;
+  aplicarFiltros();
+});
+alCambiarRegion((region) => {
+  state.region = region;
+  aplicarFiltros();
+});
 cargarCatalogo();

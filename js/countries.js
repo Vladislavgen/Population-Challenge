@@ -88,3 +88,29 @@ export function normalizarPaises(datos) {
 
   return paises;
 }
+
+function incluyeTexto(valor, consulta) {
+  return Boolean(valor) && valor.toLowerCase().includes(consulta);
+}
+
+// Recorta el catálogo en memoria: no vuelve a pedir la API. La búsqueda mira
+// el nombre común y el oficial; la región se compara tal como la entrega v5.
+export function filtrarPaises(paises, region, busqueda) {
+  const consulta = busqueda.trim().toLowerCase();
+
+  return paises.filter((pais) => {
+    if (pais.poblacion <= 0) {
+      return false;
+    }
+
+    if (region !== "all" && pais.region !== region) {
+      return false;
+    }
+
+    if (!consulta) {
+      return true;
+    }
+
+    return incluyeTexto(pais.nombre, consulta) || incluyeTexto(pais.nombreOficial, consulta);
+  });
+}

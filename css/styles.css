@@ -5,17 +5,18 @@
    ========================================================================== */
 
 :root {
-  /* Colores */
-  --color-fondo: #0f172a;
-  --color-superficie: #1e293b;
-  --color-superficie-alta: #273449;
-  --color-borde: #334155;
-  --color-texto: #e2e8f0;
-  --color-texto-suave: #94a3b8;
-  --color-acento: #38bdf8;
-  --color-acento-oscuro: #0284c7;
-  --color-exito: #4ade80;
-  --color-error: #f87171;
+  /* Paleta clara: el fondo es un degradado suave para que se note
+     la transparencia de los paneles (efecto vidrio). */
+  --color-fondo: #e8f2f8;
+  --color-superficie: rgb(255 255 255 / 58%);
+  --color-superficie-alta: rgb(255 255 255 / 74%);
+  --color-borde: rgb(15 76 129 / 14%);
+  --color-texto: #1a2b3c;
+  --color-texto-suave: #5b6d7e;
+  --color-acento: #0ea5e9;
+  --color-acento-oscuro: #0369a1;
+  --color-exito: #15803d;
+  --color-error: #b42318;
 
   /* Espaciado */
   --espacio-xs: 0.25rem;
@@ -25,14 +26,13 @@
   --espacio-xl: 2.5rem;
 
   /* Formas y tipografía */
-  --radio: 0.75rem;
+  --radio: 0.85rem;
   --ancho-maximo: 60rem;
-  --sombra: 0 10px 25px rgb(2 6 23 / 45%);
+  --sombra: 0 12px 40px rgb(15 40 70 / 10%);
+  --vidrio: blur(16px);
   --fuente: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  /* Avisa al navegador que la interfaz es oscura para que los controles
-     nativos (input y select) se dibujen acordes. */
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* Reset mínimo ------------------------------------------------------------ */
@@ -78,6 +78,11 @@ body {
   min-height: 100vh;
   padding: var(--espacio-md);
   background-color: var(--color-fondo);
+  background-image:
+    radial-gradient(1100px 520px at 8% -8%, #cfe8ff 0%, transparent 55%),
+    radial-gradient(900px 480px at 100% 0%, #ffe8d2 0%, transparent 50%),
+    linear-gradient(180deg, #eef6fb 0%, #f5f1ea 100%);
+  background-attachment: fixed;
   color: var(--color-texto);
   font-family: var(--fuente);
   line-height: 1.5;
@@ -151,7 +156,10 @@ a {
   padding: var(--espacio-sm) var(--espacio-md);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio);
-  background-color: var(--color-superficie);
+  background-color: rgb(255 255 255 / 48%);
+  box-shadow: var(--sombra);
+  backdrop-filter: var(--vidrio);
+  -webkit-backdrop-filter: var(--vidrio);
 }
 
 .scoreboard__label {
@@ -186,6 +194,8 @@ a {
   border-radius: var(--radio);
   background-color: var(--color-superficie);
   box-shadow: var(--sombra);
+  backdrop-filter: var(--vidrio);
+  -webkit-backdrop-filter: var(--vidrio);
 }
 
 /* Controles: búsqueda y filtro -------------------------------------------- */
@@ -210,7 +220,7 @@ a {
   padding: var(--espacio-sm) var(--espacio-md);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio);
-  background-color: var(--color-fondo);
+  background-color: rgb(255 255 255 / 72%);
 }
 
 .control__field:hover {
@@ -263,6 +273,24 @@ a {
   }
 }
 
+/* Si el sistema pide menos transparencia, los paneles pasan a un blanco
+   sólido: el contraste se mantiene y el desenfoque se apaga. */
+@media (prefers-reduced-transparency: reduce) {
+  .scoreboard__item,
+  .controls,
+  .status,
+  .battle,
+  .result,
+  .facts,
+  .country-card,
+  .control__field,
+  .result__populations li {
+    background-color: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 /* Botones ----------------------------------------------------------------- */
 
 .button {
@@ -278,7 +306,7 @@ a {
 
 .button:hover:not(:disabled) {
   background-color: var(--color-acento);
-  color: var(--color-fondo);
+  color: #ffffff;
 }
 
 .button:active:not(:disabled) {
@@ -287,8 +315,8 @@ a {
 
 /* Después de responder, la Etapa 5 deshabilita las dos opciones. */
 .button:disabled {
-  border-color: var(--color-borde);
-  background-color: var(--color-borde);
+  border-color: transparent;
+  background-color: rgb(148 163 184 / 28%);
   color: var(--color-texto-suave);
   cursor: not-allowed;
 }
@@ -328,6 +356,8 @@ a {
   border: 1px solid var(--color-borde);
   border-radius: var(--radio);
   background-color: var(--color-superficie-alta);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   text-align: center;
 }
 
@@ -339,7 +369,7 @@ a {
   width: 100%;
   aspect-ratio: 3 / 2;
   border-radius: calc(var(--radio) / 2);
-  background-color: var(--color-fondo);
+  background-color: rgb(255 255 255 / 40%);
   object-fit: contain;
 }
 
@@ -356,7 +386,8 @@ a {
 
 /* Modificadores que la Etapa 5 aplica al revelar la respuesta. */
 .country-card--ganadora {
-  border-color: var(--color-exito);
+  border-color: rgb(21 128 61 / 55%);
+  background-color: rgb(220 252 231 / 55%);
 }
 
 .country-card--ganadora .country-card__population {
@@ -402,7 +433,7 @@ a {
 .result__populations li {
   padding: var(--espacio-xs) var(--espacio-sm);
   border-radius: calc(var(--radio) / 2);
-  background-color: var(--color-superficie-alta);
+  background-color: rgb(255 255 255 / 55%);
 }
 
 .result__points {
@@ -439,7 +470,7 @@ a {
   max-width: 15rem;
   aspect-ratio: 3 / 2;
   border-radius: calc(var(--radio) / 2);
-  background-color: var(--color-fondo);
+  background-color: rgb(255 255 255 / 40%);
   object-fit: contain;
 }
 

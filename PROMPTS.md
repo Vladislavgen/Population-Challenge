@@ -245,6 +245,29 @@ prompts literales, sino las decisiones y los hallazgos que produjo cada etapa.
   cuatro territorios sin bandera dejarían un renglón vacío entre la imagen y
   el nombre.
 
+### Ajuste visual — paleta clara
+
+- La interfaz de las primeras etapas era azul muy oscuro. A pedido del
+  autor se pasó a un fondo claro con degradado (cielo + arena) y paneles
+  semitransparentes con `backdrop-filter`, para que el color de fondo se
+  filtre a través de las tarjetas.
+- Si el sistema tiene `prefers-reduced-transparency`, los paneles vuelven
+  a un blanco sólido: el contraste no depende del desenfoque.
+
+### Etapas 7 y 8 — Filtro de región y búsqueda
+
+- El campo de búsqueda ya estaba en el HTML desde la Etapa 1, pero no tenía
+  listeners: por eso escribir no cambiaba nada. Se conectó con `input` y un
+  `filter()` sobre el catálogo en memoria, sin volver a llamar a la API.
+- La búsqueda mira `nombre` y `nombreOficial`. Así "Argentine Republic" también
+  encuentra Argentina.
+- El filtro de región se conectó en el mismo paso porque comparte el mismo
+  pozo: si se implementara aparte, una búsqueda y un cambio de región se
+  pisarían.
+- Cero coincidencias muestran `No se encontraron países`. Una sola coincidencia
+  muestra `No hay suficientes países para un duelo`, porque el juego necesita
+  un par.
+
 ---
 
 ## 4. Sugerencias aceptadas
@@ -301,4 +324,4 @@ Etapa 2 una captura de pantalla sugería un desbordamiento que no existía, y me
 evitó modificar un CSS que ya era correcto. La conclusión práctica es que ni las
 suposiciones ni las herramientas de verificación se pueden dar por buenas solas.
 
-*Última actualización: Etapa 6 — ficha del país ganador.*
+*Última actualización: Etapas 7 y 8 — filtro de región y búsqueda.*

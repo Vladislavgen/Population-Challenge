@@ -142,6 +142,18 @@ export function alSiguiente(accion) {
   elementos.botonSiguiente.addEventListener("click", accion);
 }
 
+export function alBuscar(accion) {
+  document.getElementById("search-input").addEventListener("input", (evento) => {
+    accion(evento.target.value);
+  });
+}
+
+export function alCambiarRegion(accion) {
+  document.getElementById("region-select").addEventListener("change", (evento) => {
+    accion(evento.target.value);
+  });
+}
+
 function pintarTarjeta(lado, pais, revelada, ganador) {
   const nodo = lados[lado];
 
